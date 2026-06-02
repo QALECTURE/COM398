@@ -1,142 +1,409 @@
-# COM398 System Security - Week 2 Lab
+# COM398 Systems Security - Week 2 Lab
 
-## Cryptography with OpenSSL: DES, AES, Encryption, Decryption and File Integrity
+# Cryptography with OpenSSL: DES, AES, Encryption, Decryption and File Integrity
 
-## 1. Introduction
+---
 
-In this lab, you will use Kali Linux and OpenSSL to encrypt, decrypt, and check files.
+# Introduction
 
-The lab uses two encryption methods:
+Last week, we used Wireshark to observe network traffic and understand how data travels between systems.
 
-| Method | What to remember |
-| --- | --- |
-| DES | An older encryption method. You will use it to understand the basic process. |
-| AES | A stronger encryption method. You will use it after DES and compare the workflow. |
+This week, we will answer an important security question:
 
-You will create a small text file, encrypt it, decrypt it, and then use hashing to check whether files match.
+> What happens if someone captures our network traffic or steals a file from our computer?
 
-> **Important**  
-> This lab is only about your own files inside your own Kali Linux lab machine.
+How can we prevent them from reading our information?
 
-## 2. Learning Outcomes
+The answer is **Cryptography**.
+
+In this lab, you will use Kali Linux and OpenSSL to encrypt files, decrypt them again, and verify whether files have been modified.
+
+---
+
+# Why Cryptography Exists
+
+Imagine Alice wants to send a secret message to Bob.
+
+```text
+Alice
+  |
+  | Secret Message
+  |
+Internet
+  |
+Eve (Attacker)
+```
+
+If Eve intercepts the message, she can read it.
+
+Now imagine Alice encrypts the message first.
+
+```text
+Alice
+  |
+Encrypt
+  |
+Ciphertext
+  |
+Internet
+  |
+Eve sees unreadable data
+  |
+Bob decrypts
+```
+
+Even if Eve captures the message, she cannot understand it.
+
+This is why cryptography exists.
+
+---
+
+# Learning Outcomes
 
 By the end of this lab, you should be able to:
 
-1. Explain plaintext, ciphertext, encryption, decryption, and keys.
-2. Explain symmetric encryption.
-3. Open Kali Linux and use the terminal.
-4. Use basic OpenSSL commands.
-5. Create a plaintext file.
-6. Generate key files.
-7. Encrypt and decrypt a file using DES.
-8. Encrypt and decrypt a file using AES.
-9. Use hashing to compare files.
-10. Explain integrity in simple terms.
+* Explain cryptography in simple terms
+* Explain plaintext and ciphertext
+* Explain encryption and decryption
+* Explain symmetric encryption
+* Explain the purpose of DES and AES
+* Use OpenSSL from the terminal
+* Generate random key files
+* Encrypt and decrypt files
+* Use hashes to compare files
+* Explain integrity
 
-## 3. Core Concepts
+---
 
-| Term | Short meaning |
-| --- | --- |
-| Cryptography | Protecting information using mathematical methods. |
-| Plaintext | The original readable message or file. |
-| Ciphertext | The encrypted unreadable version of the message or file. |
-| Encryption | Turning plaintext into ciphertext. |
-| Decryption | Turning ciphertext back into plaintext. |
-| Key | Secret data used to encrypt and decrypt. |
-| Symmetric encryption | The same key is used for encryption and decryption. |
-| DES | An older symmetric encryption method. |
-| AES | A stronger symmetric encryption method used in modern systems. |
-| Hashing | Creating a short fingerprint of a file. |
-| Integrity | Knowing whether a file has changed. |
-| OpenSSL | A terminal tool used in this lab for encryption, decryption, random keys, and hashes. |
+# Core Concepts
 
-## 4. Architecture Diagram
+## Cryptography
 
-This is the full lab workflow:
+Cryptography is the process of protecting information using mathematical techniques.
+
+Examples:
+
+* Online banking
+* WhatsApp messages
+* Secure file storage
+* Password protection
+
+---
+
+## Plaintext
+
+Plaintext is readable information.
+
+Example:
+
+```text
+Hello COM398
+```
+
+---
+
+## Ciphertext
+
+Ciphertext is encrypted unreadable information.
+
+Example:
+
+```text
+hJ82Lk9Pq72J...
+```
+
+---
+
+## Encryption
+
+Encryption converts plaintext into ciphertext.
+
+```text
+Plaintext
+    ↓
+Encryption
+    ↓
+Ciphertext
+```
+
+---
+
+## Decryption
+
+Decryption converts ciphertext back into plaintext.
+
+```text
+Ciphertext
+    ↓
+Decryption
+    ↓
+Plaintext
+```
+
+---
+
+## Key
+
+A key is secret information used during encryption and decryption.
+
+Think of it as:
+
+```text
+Lock = Encryption Algorithm
+
+Key = Secret Key
+```
+
+Without the correct key, recovering the original data should be extremely difficult.
+
+---
+
+# OpenSSL Explained
+
+## What is OpenSSL?
+
+OpenSSL is not an encryption algorithm.
+
+OpenSSL is a toolkit that allows us to perform cryptographic operations.
+
+Think of it like:
+
+```text
+Microsoft Word → Create Documents
+
+OpenSSL → Perform Cryptographic Operations
+```
+
+---
+
+## What Can OpenSSL Do?
+
+```text
+Generate Keys
+Encrypt Files
+Decrypt Files
+Create Hashes
+```
+
+Architecture:
+
+```text
+           OpenSSL
+               │
+ ┌─────────────┼─────────────┐
+ │             │             │
+ ▼             ▼             ▼
+Encrypt     Decrypt      Hash
+ Files       Files       Files
+```
+
+---
+
+# DES Explained
+
+## Full Name
+
+```text
+Data Encryption Standard (DES)
+```
+
+---
+
+## What Does DES Do?
+
+DES converts readable information into unreadable information using a secret key.
+
+```text
+Plaintext
+     │
+     ▼
+DES Encryption
+     │
+ Secret Key
+     │
+     ▼
+Ciphertext
+```
+
+---
+
+## DES Decryption
+
+```text
+Ciphertext
+     │
+     ▼
+DES Decryption
+     │
+ Same Secret Key
+     │
+     ▼
+Plaintext
+```
+
+---
+
+## Why Is DES Important?
+
+DES was one of the earliest widely used encryption standards.
+
+Banks, governments and businesses used DES for many years.
+
+Today DES is considered weak because its key size is too small compared to modern standards.
+
+---
+
+# AES Explained
+
+## Full Name
+
+```text
+Advanced Encryption Standard (AES)
+```
+
+---
+
+## What Does AES Do?
+
+AES performs the same job as DES but uses stronger encryption.
+
+```text
+Plaintext
+     │
+     ▼
+AES Encryption
+     │
+ Secret Key
+     │
+     ▼
+Ciphertext
+```
+
+---
+
+## AES Decryption
+
+```text
+Ciphertext
+     │
+     ▼
+AES Decryption
+     │
+ Same Secret Key
+     │
+     ▼
+Plaintext
+```
+
+---
+
+## Why Is AES Important?
+
+AES is the modern encryption standard used today.
+
+Examples:
+
+* WiFi security
+* Online banking
+* Mobile devices
+* Cloud storage
+
+---
+
+# DES vs AES
+
+| Feature    | DES                      | AES                          |
+| ---------- | ------------------------ | ---------------------------- |
+| Full Name  | Data Encryption Standard | Advanced Encryption Standard |
+| Type       | Symmetric Encryption     | Symmetric Encryption         |
+| Key Size   | 56-bit                   | 128/192/256-bit              |
+| Security   | Weak Today               | Strong                       |
+| Status     | Historical               | Current Standard             |
+| Used Today | Rarely                   | Widely Used                  |
+
+---
+
+# Symmetric Encryption
+
+Both DES and AES use symmetric encryption.
+
+This means the same key is used for both encryption and decryption.
+
+```text
+Same Key
+    │
+    ▼
+Encrypt
+    │
+    ▼
+Ciphertext
+    │
+    ▼
+Decrypt
+    │
+    ▼
+Plaintext
+```
+
+---
+
+# Lab Architecture
+
+This is the workflow we will follow throughout the lab.
 
 ```text
 VirtualBox
-    |
-    v
+    │
+    ▼
 Kali Linux
-    |
-    v
+    │
+    ▼
 Terminal
-    |
-    v
+    │
+    ▼
 OpenSSL
-    |
-    v
-Create plaintext file
-    |
-    v
-Generate key file
-    |
-    v
-Encrypt file  --->  Ciphertext file
-    |
-    v
-Decrypt file  --->  Plaintext file again
-    |
-    v
-Hash files to check integrity
+    │
+    ▼
+Encrypt / Decrypt / Hash Files
 ```
 
-The file workflow looks like this:
+File workflow:
 
 ```text
 SystemSec.txt
-    |
-    | encrypt with a key
-    v
+      │
+      ▼
+ Encryption
+      │
+      ▼
 SystemSec-enc.enc
-    |
-    | decrypt with the same key
-    v
+      │
+      ▼
+ Decryption
+      │
+      ▼
 SystemSec-dec.dec
-    |
-    | compare hashes
-    v
-Check whether the original and decrypted files match
+      │
+      ▼
+ Compare Hashes
+      │
+      ▼
+Integrity Verified
 ```
 
-## 5. Kali Setup
+---
 
-### Step 5.1: Start Kali Linux
-
-What to do:
+# Activity 1 - Start Kali Linux
 
 1. Open VirtualBox.
-2. Click your Kali Linux virtual machine.
-3. Click **Start**.
+2. Select Kali Linux.
+3. Click Start.
 4. Wait for Kali to load.
-5. Log in if asked.
+5. Open Terminal.
 
-Why we do this:
+---
 
-Kali Linux is the lab operating system. OpenSSL will be run inside Kali.
-
-Expected output:
-
-You should see the Kali desktop.
-
-### Step 5.2: Open the Terminal
-
-What to do:
-
-Open the terminal from the Kali menu or click the terminal icon.
-
-Why we do this:
-
-The terminal lets you type commands. This lab is command-based.
-
-Expected output:
-
-You should see a terminal window with a prompt where you can type.
-
-## 6. OpenSSL Basics
-
-### Command 1: Check OpenSSL Version
+# Activity 2 - Check OpenSSL
 
 Run:
 
@@ -144,23 +411,11 @@ Run:
 openssl version
 ```
 
-What it does:
+Purpose:
 
-Shows the installed OpenSSL version.
+Check whether OpenSSL is installed.
 
-Why we run it:
-
-To check that OpenSSL is available before starting the lab.
-
-Expected output:
-
-You should see a line beginning with `OpenSSL`, for example:
-
-```text
-OpenSSL 3.x.x
-```
-
-### Command 2: Show OpenSSL Help
+---
 
 Run:
 
@@ -168,587 +423,254 @@ Run:
 openssl help
 ```
 
-What it does:
+Purpose:
 
-Shows a help list for OpenSSL commands.
+Display available OpenSSL commands.
 
-Why we run it:
-
-To confirm that OpenSSL can display its available command options.
-
-Expected output:
-
-You should see a long list of OpenSSL commands and options.
-
-### Command 3: Create Your Working Folder
+---
 
 Run:
+
+```bash
+openssl ciphers -v
+```
+
+Purpose:
+
+Display supported encryption algorithms.
+
+---
+
+# Activity 3 - Create Working Folder
 
 ```bash
 mkdir com398-week2
-```
-
-What it does:
-
-Creates a folder called `com398-week2`.
-
-Why we run it:
-
-To keep all Week 2 lab files in one place.
-
-Expected output:
-
-There may be no message. That usually means the command worked.
-
-### Command 4: Move Into the Working Folder
-
-Run:
-
-```bash
 cd com398-week2
-```
-
-What it does:
-
-Moves your terminal into the `com398-week2` folder.
-
-Why we run it:
-
-The files you create next should be stored inside this folder.
-
-Expected output:
-
-There may be no message. Your prompt may change slightly.
-
-### Command 5: Check Your Current Folder
-
-Run:
-
-```bash
 pwd
 ```
 
-What it does:
+Purpose:
 
-Prints the folder you are currently inside.
+Create and enter a dedicated folder for today's lab.
 
-Why we run it:
+---
 
-To confirm you are working in the correct folder.
-
-Expected output:
-
-The output should end with:
-
-```text
-com398-week2
-```
-
-## 7. DES Lab
-
-DES uses symmetric encryption. This means the same key is used to encrypt and decrypt.
-
-### Step 7.1: Create a Plaintext File
-
-Run:
+# Activity 4 - Create Plaintext File
 
 ```bash
 echo "COM398 Systems Security - This is my secret file." > SystemSec.txt
 ```
 
-What it does:
-
-Creates a file called `SystemSec.txt` containing one line of readable text.
-
-Why we run it:
-
-We need a plaintext file to encrypt.
-
-Expected output:
-
-There may be no message. The file should be created.
-
-### Step 7.2: Display the Plaintext File
-
-Run:
+Display the file:
 
 ```bash
 cat SystemSec.txt
 ```
 
-What it does:
+This file is our plaintext.
 
-Displays the contents of `SystemSec.txt`.
+---
 
-Why we run it:
-
-To confirm the plaintext file contains the expected message.
-
-Expected output:
-
-```text
-COM398 Systems Security - This is my secret file.
-```
-
-### Step 7.3: List the Files
-
-Run:
-
-```bash
-ls -l
-```
-
-What it does:
-
-Lists files in the current folder with extra detail.
-
-Why we run it:
-
-To confirm that `SystemSec.txt` exists.
-
-Expected output:
-
-You should see `SystemSec.txt` in the list.
-
-### Step 7.4: Generate a DES Key File
-
-Run:
+# Activity 5 - Generate DES Key
 
 ```bash
 openssl rand -out des_keySS 56
 ```
 
-What it does:
+Purpose:
 
-Creates a file called `des_keySS` containing random data.
+Generate random key material for DES.
 
-Why we run it:
+---
 
-DES needs key material for encryption and decryption.
-
-Expected output:
-
-There may be no message. A file called `des_keySS` should be created.
-
-### Step 7.5: Encrypt the File with DES
-
-Run:
+# Activity 6 - DES Encryption
 
 ```bash
 openssl des -e -kfile des_keySS -in SystemSec.txt -out SystemSec-enc.enc
 ```
 
-What it does:
-
-Encrypts `SystemSec.txt` using DES and writes the encrypted output to `SystemSec-enc.enc`.
-
-Why we run it:
-
-To turn the readable plaintext file into unreadable ciphertext.
-
-Expected output:
-
-There may be no message. A file called `SystemSec-enc.enc` should be created.
-
-### Step 7.6: View the Encrypted File
-
-Run:
+View encrypted content:
 
 ```bash
 cat SystemSec-enc.enc
 ```
 
-What it does:
+Observe:
 
-Displays the encrypted file.
+The contents are unreadable.
 
-Why we run it:
+---
 
-To see that ciphertext does not look like normal readable text.
-
-Expected output:
-
-You should see unreadable or strange-looking output. This is normal.
-
-### Step 7.7: Decrypt the DES File
-
-Run:
+# Activity 7 - DES Decryption
 
 ```bash
 openssl des -d -kfile des_keySS -in SystemSec-enc.enc -out SystemSec-dec.dec
 ```
 
-What it does:
-
-Decrypts `SystemSec-enc.enc` and writes the result to `SystemSec-dec.dec`.
-
-Why we run it:
-
-To turn the ciphertext back into readable plaintext.
-
-Expected output:
-
-There may be no message. A file called `SystemSec-dec.dec` should be created.
-
-### Step 7.8: Display the Decrypted DES File
-
-Run:
+Display decrypted file:
 
 ```bash
 cat SystemSec-dec.dec
 ```
 
-What it does:
+Observe:
 
-Displays the decrypted file.
+The original plaintext is recovered.
 
-Why we run it:
+---
 
-To check that decryption recovered the original message.
+# Activity 8 - Verify Integrity
 
-Expected output:
+Generate MD5 hashes:
 
-```text
-COM398 Systems Security - This is my secret file.
+```bash
+openssl md5 SystemSec.txt
+openssl md5 SystemSec-dec.dec
 ```
 
-## 8. AES Lab
+Observe:
 
-AES also uses symmetric encryption. In this lab, AES follows the same basic workflow as DES: generate a key file, encrypt, decrypt, and check the result.
+Matching hashes indicate identical files.
 
-### Step 8.1: Generate an AES Key File
+---
 
-Run:
+# Activity 9 - Generate AES Key
 
 ```bash
 openssl rand -out aes_keySS 128
 ```
 
-What it does:
+Purpose:
 
-Creates a file called `aes_keySS` containing random data.
+Generate key material for AES.
 
-Why we run it:
+---
 
-AES needs key material for encryption and decryption.
-
-Expected output:
-
-There may be no message. A file called `aes_keySS` should be created.
-
-### Step 8.2: Encrypt the File with AES
-
-Run:
+# Activity 10 - AES Encryption
 
 ```bash
 openssl aes256 -e -kfile aes_keySS -in SystemSec.txt -out SystemSec-aes.enc
 ```
 
-What it does:
-
-Encrypts `SystemSec.txt` using AES and writes the encrypted output to `SystemSec-aes.enc`.
-
-Why we run it:
-
-To practise encryption with AES after using DES.
-
-Expected output:
-
-There may be no message. A file called `SystemSec-aes.enc` should be created.
-
-### Step 8.3: View the AES Encrypted File
-
-Run:
+Display encrypted file:
 
 ```bash
 cat SystemSec-aes.enc
 ```
 
-What it does:
+Observe:
 
-Displays the AES encrypted file.
+The contents appear unreadable.
 
-Why we run it:
+---
 
-To confirm that encrypted data is not readable as normal text.
-
-Expected output:
-
-You should see unreadable or strange-looking output.
-
-### Step 8.4: Decrypt the AES File
-
-Run:
+# Activity 11 - AES Decryption
 
 ```bash
 openssl aes256 -d -kfile aes_keySS -in SystemSec-aes.enc -out SystemSec-aes.dec
 ```
 
-What it does:
-
-Decrypts `SystemSec-aes.enc` and writes the result to `SystemSec-aes.dec`.
-
-Why we run it:
-
-To recover the original plaintext from the AES ciphertext.
-
-Expected output:
-
-There may be no message. A file called `SystemSec-aes.dec` should be created.
-
-### Step 8.5: Display the Decrypted AES File
-
-Run:
+Display decrypted file:
 
 ```bash
 cat SystemSec-aes.dec
 ```
 
-What it does:
+Observe:
 
-Displays the decrypted AES file.
+The original plaintext is recovered.
 
-Why we run it:
+---
 
-To confirm that AES decryption recovered the original message.
+# Activity 12 - Tampering Activity
 
-Expected output:
-
-```text
-COM398 Systems Security - This is my secret file.
-```
-
-## 9. Hashing and Integrity Lab
-
-Hashing creates a short fingerprint of a file. If two files have the same hash, they are very likely to have the same contents. In this lab, we use hashes to check integrity.
-
-### Step 9.1: Hash the Original File with MD5
-
-Run:
-
-```bash
-openssl md5 SystemSec.txt
-```
-
-What it does:
-
-Creates an MD5 hash of `SystemSec.txt`.
-
-Why we run it:
-
-To get a fingerprint of the original plaintext file.
-
-Expected output:
-
-You should see output similar to:
-
-```text
-MD5(SystemSec.txt)= a_long_hash_value
-```
-
-### Step 9.2: Hash the DES Decrypted File with MD5
-
-Run:
-
-```bash
-openssl md5 SystemSec-dec.dec
-```
-
-What it does:
-
-Creates an MD5 hash of the DES decrypted file.
-
-Why we run it:
-
-To compare the DES decrypted file with the original file.
-
-Expected output:
-
-The hash value should match the MD5 hash from `SystemSec.txt`.
-
-### Step 9.3: Hash the Original File with SHA-256
-
-Run:
-
-```bash
-openssl sha256 SystemSec.txt
-```
-
-What it does:
-
-Creates a SHA-256 hash of `SystemSec.txt`.
-
-Why we run it:
-
-To practise using another hashing command.
-
-Expected output:
-
-You should see output similar to:
-
-```text
-SHA256(SystemSec.txt)= a_long_hash_value
-```
-
-### Step 9.4: Hash the AES Decrypted File with SHA-256
-
-Run:
-
-```bash
-openssl sha256 SystemSec-aes.dec
-```
-
-What it does:
-
-Creates a SHA-256 hash of the AES decrypted file.
-
-Why we run it:
-
-To compare the AES decrypted file with the original file.
-
-Expected output:
-
-The hash value should match the SHA-256 hash from `SystemSec.txt`.
-
-## 10. Tampering Activity
-
-Tampering means changing a file. In this activity, you will change an encrypted file and prove that its hash changes.
-
-### Step 10.1: Create a New Plaintext File
-
-Run:
+Create a file:
 
 ```bash
 echo "Alice salary record: GBP 50000" > Sec.txt
 ```
 
-What it does:
-
-Creates a file called `Sec.txt` with readable text.
-
-Why we run it:
-
-We need a simple file for the tampering activity.
-
-Expected output:
-
-There may be no message. A file called `Sec.txt` should be created.
-
-### Step 10.2: Generate a Key File
-
-Run:
+Generate key:
 
 ```bash
 openssl rand -out aes256_key 32
 ```
 
-What it does:
-
-Creates a file called `aes256_key` containing random data.
-
-Why we run it:
-
-The file will be used as key material for encryption.
-
-Expected output:
-
-There may be no message. A file called `aes256_key` should be created.
-
-### Step 10.3: Encrypt the File
-
-Run:
+Encrypt file:
 
 ```bash
 openssl aes-256-ctr -e -kfile aes256_key -in Sec.txt -out Sec.enc
 ```
 
-What it does:
-
-Encrypts `Sec.txt` and writes the encrypted output to `Sec.enc`.
-
-Why we run it:
-
-To create an encrypted file that will later be changed.
-
-Expected output:
-
-There may be no message. A file called `Sec.enc` should be created.
-
-### Step 10.4: Hash the Encrypted File Before Tampering
-
-Run:
+Generate hash:
 
 ```bash
 openssl sha256 Sec.enc
 ```
 
-What it does:
+Record the hash.
 
-Creates a SHA-256 hash of `Sec.enc`.
+---
 
-Why we run it:
-
-To record the fingerprint of the encrypted file before it is changed.
-
-Expected output:
-
-You should see a SHA-256 hash. Write it down or take a screenshot.
-
-### Step 10.5: Tamper with the Encrypted File
-
-Run:
+Modify the encrypted file:
 
 ```bash
 echo "tampered" >> Sec.enc
 ```
 
-What it does:
-
-Adds the word `tampered` to the end of `Sec.enc`.
-
-Why we run it:
-
-To simulate a file being changed after encryption.
-
-Expected output:
-
-There may be no message. The encrypted file has now been changed.
-
-### Step 10.6: Hash the Encrypted File After Tampering
-
-Run:
+Generate hash again:
 
 ```bash
 openssl sha256 Sec.enc
 ```
 
-What it does:
+Observe:
 
-Creates a new SHA-256 hash of the changed encrypted file.
+The hash value changes.
 
-Why we run it:
+This demonstrates file integrity checking.
 
-To check whether the file fingerprint changed.
+---
 
-Expected output:
-
-The new hash should be different from the hash before tampering.
-
-What this shows:
-
-Encryption changes readable data into unreadable data. Hashing helps you notice when a file has changed.
-
-## 11. Reflection Questions
-
-Answer these questions after completing the lab:
+# Reflection Questions
 
 1. What is plaintext?
 2. What is ciphertext?
 3. What is encryption?
 4. What is decryption?
-5. Why does symmetric encryption need the same key for encryption and decryption?
-6. What happened when you used `cat` on an encrypted file?
-7. Did the decrypted DES file match the original plaintext file?
-8. Did the decrypted AES file match the original plaintext file?
-9. What does a hash help you check?
-10. What happened to the hash after you tampered with `Sec.enc`?
+5. What is a key?
+6. Why are DES and AES called symmetric encryption algorithms?
+7. Why is AES preferred over DES today?
+8. What is hashing?
+9. Why did the hash change after tampering?
+10. What does integrity mean?
+
+---
+
+# Final Summary
+
+```text
+OpenSSL
+↓
+Cryptography Toolkit
+
+DES
+↓
+Older Encryption Algorithm
+
+AES
+↓
+Modern Encryption Algorithm
+
+DES and AES
+↓
+Symmetric Encryption
+
+Hashing
+↓
+Integrity Checking
+
+Encryption
+↓
+Confidentiality
+```
