@@ -716,3 +716,231 @@ Shows Network Path
 # End of Week 6
 
 Next week we will continue exploring network communication and security by analysing additional networking protocols and understanding how different layers of the TCP/IP model work together to provide reliable communication across modern computer networks.
+
+#NEXT SET OF ACTIVITIES
+# Activity – Analyse an IPv4 Packet
+
+## Objective
+
+In this activity, you will inspect a real IPv4 packet captured using Wireshark and analyse the information contained within the IPv4 header.
+
+---
+
+## Instructions
+
+1. Open Wireshark.
+2. Apply the display filter:
+
+```text
+ip.version == 4
+```
+
+3. Select any **TCP** or **TLS** packet.
+4. Expand **Internet Protocol Version 4**.
+5. Answer the following questions based on the packet you selected.
+
+---
+
+# Packet Analysis Questions
+
+### Question 1
+
+Identify the following information from your selected packet.
+
+| Field | Your Observation |
+|--------|------------------|
+| Source Address | __________________ |
+| Destination Address | __________________ |
+| Protocol | __________________ |
+| Header Length | __________________ |
+| Total Length | __________________ |
+| TTL | __________________ |
+
+---
+
+### Question 2
+
+Look at the **Source Address**.
+
+- Which device sent this packet?
+- Is it your computer or the remote server?
+
+**Answer**
+
+_____________________________________________________
+
+_____________________________________________________
+
+---
+
+### Question 3
+
+Look at the **Destination Address**.
+
+- Where is this packet travelling?
+- Why does every packet require a destination address?
+
+**Answer**
+
+_____________________________________________________
+
+_____________________________________________________
+
+---
+
+### Question 4
+
+Locate the **Time To Live (TTL)** field.
+
+1. What is the TTL value?
+
+```
+Answer:
+____________________
+```
+
+2. Explain, in your own words, what the TTL value represents.
+
+_____________________________________________________
+
+_____________________________________________________
+
+---
+
+### Question 5
+
+Imagine the packet originally started with a TTL value of **64**.
+
+If the packet currently shows:
+
+```
+TTL = _______
+```
+
+Approximately how many routers (hops) has the packet already travelled through?
+
+Show your calculation.
+
+```
+64 - Current TTL = ______ routers
+```
+
+---
+
+### Question 6
+
+Suppose the packet continues travelling through more routers.
+
+What will happen to the TTL value after each router?
+
+**Answer**
+
+_____________________________________________________
+
+---
+
+### Question 7
+
+What happens if the TTL reaches **0** before arriving at the destination?
+
+**Answer**
+
+_____________________________________________________
+
+_____________________________________________________
+
+---
+
+### Question 8
+
+Locate the **Protocol** field.
+
+Which protocol is encapsulated inside the IPv4 packet?
+
+```
+Answer:
+____________________
+```
+
+Why is this information important?
+
+_____________________________________________________
+
+---
+
+### Question 9
+
+Inspect the following fields.
+
+- Identification
+- Flags
+- Fragment Offset
+
+Based on your observations:
+
+Has this packet been fragmented?
+
+```
+Yes / No
+```
+
+Explain how you reached your conclusion.
+
+_____________________________________________________
+
+_____________________________________________________
+
+---
+
+### Question 10
+
+Locate the **Header Checksum**.
+
+What is the purpose of the Header Checksum?
+
+Choose the correct answer.
+
+- [ ] Encrypts the packet
+- [ ] Compresses the packet
+- [ ] Detects errors in the IPv4 header
+- [ ] Stores the destination IP address
+
+---
+
+### Question 11
+
+Using everything you have observed, explain the complete journey of this packet.
+
+Include the following terms in your explanation:
+
+- Source Address
+- Destination Address
+- Router
+- TTL
+- Protocol
+- Header Checksum
+
+**Answer**
+
+_____________________________________________________
+
+_____________________________________________________
+
+_____________________________________________________
+
+_____________________________________________________
+
+---
+
+# Challenge Activity
+
+Imagine you are a Network Engineer investigating a customer's connection.
+
+The customer reports that they cannot access a website.
+
+Using the information available in Wireshark:
+
+1. Which IPv4 fields would you inspect first?
+2. Why would those fields help you troubleshoot the issue?
+
+Discuss your answers with your group before sharing them with the class.
