@@ -213,3 +213,195 @@ If something isn't working, check these in order:
 - [ ] Do the IP addresses of the devices you're testing actually match on subnet (same mask logic)?
 - [ ] Did you wait a few seconds after cabling for the switch port to finish initializing (amber → green)?
 - [ ] Are you testing from the **Command Prompt** inside the Desktop tab, not typing into the wrong window?
+
+# Packet Tracer Lab — Wireless LAN Basics
+### Access Point, SSID, Security, and Wireless Connectivity
+
+---
+
+## 1. What You're Doing
+
+In this activity you will build a small **wireless network** in Cisco Packet Tracer: one Access Point and two wireless-enabled PCs. You'll configure a network name (SSID), secure it with a password, connect your devices, and test connectivity — then compare it directly to the wired switch network you already built in Lab 1.
+
+**Estimated time:** 25–35 minutes
+
+**Prerequisite:** Completion of Lab 1 (Basic LAN Connectivity), since this activity builds on IP addressing and `ping` concepts you already know.
+
+---
+
+## 2. What You Need
+
+- Cisco Packet Tracer (installed, any recent version)
+- No prior wireless configuration required — you're building from a blank workspace
+
+---
+
+## 3. Background: Key Concepts You Need Before Starting
+
+### 3.1 Wired vs Wireless — what actually changes?
+
+In Lab 1, PCs connected to a switch using physical cables. In this lab, PCs will connect to an **Access Point (AP)** using radio waves instead of cables. Here's the important point:
+
+> **Wireless only changes how devices connect physically (Layer 1/2). Everything above that — IP addresses, subnet masks, ping — works exactly the same way as your wired lab.**
+
+So an Access Point is functionally similar to a switch: it lets multiple devices on the same LAN talk to each other. The difference is the connection method, not the networking logic.
+
+### 3.2 What is an Access Point (AP)?
+
+An Access Point is a device that creates a wireless network and allows Wi-Fi capable devices to join it. In Packet Tracer, you'll use a standalone AP (or a Wireless Router, which is an AP + router combined — for this activity we'll use a plain AP so it behaves like a switch, not a router).
+
+### 3.3 What is an SSID?
+
+**SSID (Service Set Identifier)** is simply the name of the wireless network — what you'd see in a phone's Wi-Fi list (e.g. "Home-WiFi", "University-Guest"). Every AP broadcasts (or optionally hides) an SSID so devices know which network to join.
+
+### 3.4 Why do we secure wireless networks?
+
+Unlike a cable, radio signals travel through walls and can be picked up by anyone nearby — there's no physical boundary stopping an outsider from trying to connect. This is why wireless networks use authentication:
+
+| Security Type | Notes |
+|---|---|
+| **Open (none)** | No password — anyone in range can connect. Not recommended, but useful to show students the risk. |
+| **WEP** | Old, broken encryption — no longer considered secure. Worth mentioning historically. |
+| **WPA2-PSK** | Current standard for small networks — a shared password (Pre-Shared Key) all devices use to join. This is what you'll configure. |
+
+### 3.5 What is a wireless NIC?
+
+A **NIC (Network Interface Card)** is the hardware that lets a device connect to a network. Wired PCs in Packet Tracer come with an Ethernet NIC by default. To make a PC wireless-capable, you need to physically swap in a **Wireless NIC** — you'll do this yourself in Part A, which is a good hands-on reminder that wireless isn't automatic; it requires the right hardware.
+
+---
+
+## 4. Devices Reference (Quick Lookup)
+
+| Item | Where to find it in Packet Tracer | Purpose |
+|---|---|---|
+| Access Point | Network Devices → Wireless Devices | Creates the wireless network (SSID) |
+| PC | End Devices | End device — needs a wireless NIC added |
+| Wireless NIC (e.g. WMP300N) | PC → Physical tab → Modules | Gives a PC the ability to connect wirelessly |
+
+**Note:** No cables are used to connect the PCs to the AP — that's the whole point of this lab. You will still need a power connection (automatic in Packet Tracer) but no Ethernet cable between PC and AP.
+
+---
+
+## 5. Part A — Add Wireless Capability to Your PCs
+
+By default, PCs in Packet Tracer have a wired Ethernet card, not a wireless one. You need to swap it.
+
+1. Drag **2 PCs** onto the workspace: `PC0`, `PC1`.
+2. Click **PC0** → go to the **Physical** tab (not Desktop).
+3. **Power off** the PC first — click the power button (green switch icon) on the device image, or it won't let you swap modules.
+4. On the left-hand module list, find a wireless NIC (e.g. **WMP300N**).
+5. Drag the existing wired NIC module **out** of the PC (drag it to the module list to remove it).
+6. Drag the **wireless NIC** module **into** the empty slot.
+7. **Power the PC back on**.
+8. Repeat steps 2–7 for **PC1**.
+
+**Check:** Go to each PC's **Desktop** tab. You should now see a **PC Wireless** option instead of just IP Configuration — this confirms the wireless NIC installed correctly.
+
+---
+
+## 6. Part B — Add and Configure the Access Point
+
+1. Drag an **Access Point** (Network Devices → Wireless Devices) onto the workspace: `AP0`.
+2. Click **AP0** → **Config** tab → **Port 1 (Radio)** or the SSID field.
+3. Set the SSID to something identifiable, e.g.:
+   ```
+   ClassroomWiFi
+   ```
+4. Leave the AP powered on (default).
+
+At this point, PC0 and PC1 should automatically detect the AP within range (Packet Tracer places wireless devices within range of each other by default on the same canvas).
+
+---
+
+## 7. Part C — Connect PCs to the Wireless Network
+
+1. Click **PC0** → **Desktop** tab → **PC Wireless**.
+2. Go to the **Connect** tab — you should see `ClassroomWiFi` listed.
+3. Select it and click **Connect**.
+4. If prompted for security, for now leave it as **no authentication** (we'll secure it in Part E).
+5. Repeat for **PC1**.
+
+**Check:** the AP's link light (or the small wireless signal icon at each PC) should turn green, indicating an active wireless association.
+
+---
+
+## 8. Part D — Assign IPs and Test Connectivity
+
+Just like Lab 1 — wireless doesn't change this part at all.
+
+1. On **PC0** → PC Wireless (or IP Configuration) → set:
+   - IP: `192.168.10.1`
+   - Subnet mask: `255.255.255.0`
+2. On **PC1** → set:
+   - IP: `192.168.10.2`
+   - Subnet mask: `255.255.255.0`
+3. Open **Command Prompt** on PC0 and run:
+   ```
+   ping 192.168.10.2
+   ```
+4. You should get 4 successful replies — exactly like the wired lab, just over radio instead of copper.
+
+**Optional:** switch to **Simulation Mode** and send the ping again. Watch the packet travel PC0 → AP0 → PC1 — notice the animation shows a wireless signal (radiating circle) instead of a cable-based hop.
+
+---
+
+## 9. Part E — Secure the Network (WPA2)
+
+Right now your wireless network is **open** — anyone could connect. Let's fix that.
+
+1. Click **AP0** → **Config** tab.
+2. Find the **Security** dropdown and change it from "Disabled" to **WPA2-PSK**.
+3. Set a passphrase, e.g.:
+   ```
+   ClassSecure2026
+   ```
+4. Now go to **PC0** → PC Wireless → **Connect** tab.
+   - Notice `ClassroomWiFi` now shows a padlock icon.
+   - You'll need to reconnect and enter the passphrase to re-associate.
+5. Repeat for **PC1**.
+6. Confirm ping still works between PC0 and PC1 after reconnecting with the password.
+
+### Question to answer in your own words (write this down):
+> Why is securing a wireless network with WPA2 more important than securing a wired switch connection? What's physically different about how someone could try to access each one?
+
+---
+
+## 10. Part F — Break It (On Purpose) and Explain Why
+
+1. On **PC1**, disconnect from `ClassroomWiFi` (PC Wireless → Connect tab → Disconnect).
+2. From **PC0**, try to ping PC1 again.
+3. Observe the failure (e.g. "Request timed out").
+4. Reconnect PC1 with the correct passphrase and confirm ping succeeds again.
+
+This reinforces: association to the AP is a *prerequisite* for IP connectivity — no different in principle from a cable being unplugged in Lab 1, just wireless instead of physical.
+
+---
+
+## 11. Bonus Challenge (if time allows)
+
+- Add a **3rd wireless PC** and confirm all three can ping each other.
+- Try setting an **incorrect** WPA2 passphrase on one PC deliberately and observe what happens (it should fail to associate at all, not just fail to ping).
+- Compare: open AP vs WPA2 AP — capture a ping in Simulation Mode for both and discuss what would happen if someone outside the classroom tried to join an open network within range.
+
+---
+
+## 12. Deliverable — What to Submit
+
+Submit a short document (1–2 pages) containing:
+
+1. A screenshot of your topology (2 wireless PCs + 1 AP)
+2. A screenshot of the AP's SSID and WPA2 configuration
+3. A screenshot of a successful `ping` between the two PCs **after** WPA2 was enabled
+4. Your written answer to the Part E question (wireless vs wired security)
+5. A short note on what happened in Part F (disconnect/reconnect test)
+
+---
+
+## Quick Troubleshooting Checklist
+
+- [ ] Did you **power off** the PC before swapping in the wireless NIC? (Packet Tracer won't allow module changes on a powered device.)
+- [ ] Did you power the PC back **on** after installing the wireless NIC?
+- [ ] Is the PC actually **connected** to the SSID (not just "in range")? Check the Connect tab shows "Connected."
+- [ ] After enabling WPA2, did you **reconnect** each PC with the new passphrase? Existing connections don't auto-upgrade.
+- [ ] Are both PCs on the **same subnet** (same logic as the wired lab)?
+- [ ] Is the AP powered on and within range on the canvas (Packet Tracer treats proximity on the workspace as signal range)?
