@@ -1,195 +1,383 @@
 # COM398 Systems Security
+
 # Week 9 – Access Control Lists (ACLs)
 
 ---
 
 # Introduction
 
-Today we will learn how Access Control Lists (ACLs) control communication between networks.
+In today's seminar, we will learn how Access Control Lists (ACLs) are used to control communication between different networks.
 
-In this lab you will:
-- Verify network connectivity.
-- Identify an existing ACL.
-- Remove an ACL and test connectivity.
-- Configure your own Standard IPv4 ACL.
-- Apply it to the correct router interface.
-- Verify that the ACL behaves as expected.
+Before configuring an ACL, a network engineer must first understand the network topology, verify device connectivity, and identify where an ACL has been applied.
+
+During today's practical you will investigate an existing ACL, remove it, verify the network, and finally configure your own Standard IPv4 ACL.
+
+---
+
+# Learning Objectives
+
+By the end of today's seminar you should be able to:
+
+- Understand the purpose of an Access Control List (ACL)
+- Identify where an ACL is configured
+- Verify network connectivity
+- Locate an ACL on a router
+- Determine whether an ACL is applied inbound or outbound
+- Remove an existing ACL
+- Verify connectivity after removing an ACL
+- Configure and apply a Standard IPv4 ACL
+
+---
+
+# Today's Practical Activities
+
+Today's lab consists of two practical exercises.
+
+## Activity 1
+
+Investigate an existing ACL.
+
+You will:
+
+- Verify connectivity
+- Locate the ACL
+- Remove the ACL
+- Test the network again
+
+---
+
+## Activity 2
+
+Create your own Standard IPv4 ACL.
+
+You will:
+
+- Configure the ACL
+- Apply it to the router
+- Verify the configuration
+- Test the completed network
 
 ---
 
 # Network Topology
 
+Before opening the CLI, familiarise yourself with the network.
+
 ```mermaid
 flowchart LR
-PC1 --> S1 --> R1
-PC2 --> S2 --> R1
-R1 <-- Serial --> R2
-R1 <-- Serial --> R3
-R2 --> SW0 --> WEB[Web Server]
-R3 --> S3 --> PC3
+
+subgraph LAN1["192.168.10.0/24"]
+PC1[PC1]
+PC2[PC2]
+S1[Switch S1]
+PC1 --> S1
+PC2 --> S1
+end
+
+subgraph LAN2["192.168.11.0/24"]
+PC3[PC3]
+S2[Switch S2]
+PC3 --> S2
+end
+
+subgraph LAN3["192.168.30.0/24"]
+PC4[PC4]
+S3[Switch S3]
+PC4 --> S3
+end
+
+subgraph LAN4["192.168.31.0/24"]
+DNS[DNS Server]
+S4[Switch S4]
+DNS --> S4
+end
+
+S1 --> R1
+S2 --> R1
+
+R1 --- R2
+
+R2 --> S3
+R2 --> S4
 ```
 
 ---
 
-# Addressing Table
+# Verify the Topology
 
-| Device | Interface | IP Address | Subnet Mask | Gateway |
-|---------|-----------|------------|-------------|---------|
-| PC1 | NIC | 192.168.10.10 | 255.255.255.0 | 192.168.10.1 |
-| PC2 | NIC | 192.168.11.10 | 255.255.255.0 | 192.168.11.1 |
-| PC3 | NIC | 192.168.30.10 | 255.255.255.0 | 192.168.30.1 |
-| Web Server | NIC | 192.168.20.254 | 255.255.255.0 | 192.168.20.1 |
-| R1 G0/0 | |192.168.10.1|255.255.255.0| |
-| R1 G0/1 | |192.168.11.1|255.255.255.0| |
-| R2 G0/0 | |192.168.20.1|255.255.255.0| |
-| R3 G0/0 | |192.168.30.1|255.255.255.0| |
+Open the supplied Packet Tracer file.
 
-> If the Packet Tracer file already contains these values, verify them only. Do not modify them unless instructed.
+Before doing anything else, verify that your topology matches the following.
 
----
+You should have:
 
-# Activity 1 – Investigate an Existing ACL
+| Device | Quantity |
+|----------|----------|
+| Router 1941 | 2 |
+| Switch 2960-24TT | 4 |
+| PCs | 4 |
+| DNS Server | 1 |
 
-## Step 1 – Open the Lab
-1. Open Cisco Packet Tracer.
-2. Open **Week 9 Lab – ACL Part 1.pkt**.
+The topology should contain:
 
-## Step 2 – Check the Devices
-Confirm you can see:
 - Router R1
 - Router R2
-- Router R3
-- Switch S1, S2, S3
-- Web Server
-- PC1, PC2 and PC3
+- Switch S1
+- Switch S2
+- Switch S3
+- Switch S4
+- PC1
+- PC2
+- PC3
+- PC4
+- DNS Server
 
-## Step 3 – Verify PC IP Configuration
-For **PC1**, **PC2**, **PC3**:
-- Click PC
-- Desktop
-- IP Configuration
-- Check IP Address, Subnet Mask and Default Gateway match the table.
+If anything is missing, stop and ask your seminar tutor before continuing.
 
-## Step 4 – Test Connectivity
-Open **Command Prompt** on each PC.
+---
 
-Run:
-```text
-ping 192.168.11.10
-ping 192.168.20.254
-ping 192.168.30.10
-```
+# Understanding the Networks
 
-Record which succeed and which fail.
+The topology contains four separate IPv4 networks.
 
-## Step 5 – Investigate the Router
+| Network | Purpose |
+|-----------|----------|
+|192.168.10.0/24|LAN containing PC1 and PC2|
+|192.168.11.0/24|LAN containing PC3|
+|192.168.30.0/24|LAN containing PC4|
+|192.168.31.0/24|DNS Server Network|
 
-Click **R1 → CLI**
+Routers are responsible for allowing these different networks to communicate with each other.
+
+ACLs will later decide which communication should be permitted or denied.
+
+---
+
+# Step 1 — Verify PC1
+
+Select
+
+PC1
+
+↓
+
+Desktop
+
+↓
+
+IP Configuration
+
+Verify that:
+
+- IP Address belongs to the **192.168.10.0/24** network
+- Subnet Mask is correct
+- Default Gateway is configured
+
+Do not modify any values.
+
+---
+
+# Step 2 — Verify PC2
+
+Select
+
+PC2
+
+↓
+
+Desktop
+
+↓
+
+IP Configuration
+
+Verify that:
+
+- IP Address belongs to the **192.168.10.0/24** network
+- Subnet Mask is correct
+- Default Gateway is configured
+
+---
+
+# Step 3 — Verify PC3
+
+Select
+
+PC3
+
+↓
+
+Desktop
+
+↓
+
+IP Configuration
+
+Verify that:
+
+- IP Address belongs to the **192.168.11.0/24** network
+- Subnet Mask is correct
+- Default Gateway is configured
+
+---
+
+# Step 4 — Verify PC4
+
+Select
+
+PC4
+
+↓
+
+Desktop
+
+↓
+
+IP Configuration
+
+Verify that:
+
+- IP Address belongs to the **192.168.30.0/24** network
+- Subnet Mask is correct
+- Default Gateway is configured
+
+---
+
+# Step 5 — Verify the DNS Server
+
+Select
+
+DNS Server
+
+↓
+
+Desktop
+
+↓
+
+IP Configuration
+
+Verify that:
+
+- IP Address belongs to the **192.168.31.0/24** network
+- Subnet Mask is correct
+- Default Gateway is configured
+
+---
+
+# Step 6 — Verify Router Interfaces
+
+Select
+
+R1
+
+↓
+
+CLI
+
+Type
 
 ```text
 enable
-show access-lists
-show running-config
+show ip interface brief
 ```
-
-Answer:
-- Which ACL number exists?
-- Which interface uses the ACL?
-- Is it inbound or outbound?
-
-## Step 6 – Remove the ACL
-Follow the lab sheet instructions to remove the ACL.
 
 Verify:
-```text
-show access-lists
-show running-config
-```
 
-## Step 7 – Test Again
+- Interfaces connected to S1 are up/up.
+- Interfaces connected to S2 are up/up.
+- Serial interface connecting to R2 is up/up.
 
-Repeat every ping.
+Repeat the same process on **R2**.
+
+---
+
+# Step 7 — Test Network Connectivity
+
+Open
+
+PC1
+
+↓
+
+Desktop
+
+↓
+
+Command Prompt
+
+Run the ping commands provided in today's lab sheet.
 
 Record:
-- Which devices can communicate now?
-- What changed?
+
+- Which devices respond?
+- Which devices fail?
+
+Do not investigate yet.
+
+Repeat the same process from:
+
+- PC2
+- PC3
+- PC4
+
+Record all observations before continuing.
 
 ---
 
-# Activity 2 – Configure Your Own ACL
+# Step 8 — Investigate the ACL
 
-Open:
-**Week 9 Lab – ACL Part 2.pkt**
+Select
 
-## Step 1
-Verify:
-- PCs
-- Routers
-- Web Server
-- IP addresses
-- Gateways
+R1
 
-## Step 2
-Open:
-**R2 → CLI**
+↓
+
+CLI
+
+Enter:
 
 ```text
 enable
-configure terminal
+show access-lists
 ```
 
-## Step 3
-Create the Standard ACL exactly as instructed in the lab sheet.
+Answer the following:
 
-## Step 4
-Apply the ACL to the required interface.
+- Is an ACL configured?
+- What is the ACL number?
+- Which rules are present?
 
-## Step 5
-Repeat on **R3** if required.
-
-## Step 6 – Verify
+Next, enter:
 
 ```text
-show access-lists
 show running-config
-show ip interface
 ```
 
-## Step 7 – Test
+Locate:
 
-Run ping tests between:
-- PC1 ↔ PC2
-- PC1 ↔ Web Server
-- PC2 ↔ Web Server
-- PC1 ↔ PC3
-- PC2 ↔ PC3
-- PC3 ↔ Web Server
+```text
+ip access-group
+```
 
-Record Pass/Fail and explain why.
+Identify:
 
----
+- Which interface is using the ACL?
+- Is the ACL applied inbound or outbound?
 
-# Troubleshooting
-
-If a ping fails:
-1. Check the PC IP address.
-2. Check the subnet mask.
-3. Check the default gateway.
-4. Verify router interface IPs.
-5. Verify ACL configuration.
-6. Verify the interface where the ACL is applied.
-7. Verify whether the ACL is inbound or outbound.
+Do not remove the ACL until instructed by your seminar tutor.
 
 ---
 
-# End of Lab Checklist
+# End of Part 1
 
-- [ ] Verified topology
-- [ ] Verified IP addressing
-- [ ] Tested connectivity
-- [ ] Investigated an ACL
-- [ ] Removed an ACL
-- [ ] Configured a Standard ACL
-- [ ] Applied the ACL correctly
-- [ ] Verified using show commands
-- [ ] Tested the completed network
+At this stage you should have:
+
+- Verified the complete topology.
+- Checked every end device.
+- Confirmed router interfaces.
+- Tested network connectivity.
+- Located the existing ACL.
+- Identified where the ACL has been applied.
+
+In Part 2, you will remove the ACL, verify connectivity, create your own Standard IPv4 ACL, apply it to the correct interface, and test the completed network.
