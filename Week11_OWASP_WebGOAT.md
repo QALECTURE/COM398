@@ -1,6 +1,6 @@
 # COM398 – OWASP WebGoat + Wireshark Security Lab
 
-## 1-Hour Practical: Observe a Web Attack at Network Level
+## Observe a Web Attack at Network Level
 
 ### Learning goal
 
