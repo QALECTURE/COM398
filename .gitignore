@@ -1,9 +1,0 @@
-.DS_Store
-*.enc
-*.dec
-*_key*
-Sec.txt
-SystemSec.txt
-*.log
-**pycache**/
-**pycache**
