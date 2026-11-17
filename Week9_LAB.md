@@ -54,7 +54,7 @@ By the end of today's seminar, you should be able to:
 
 The network consists of four separate LANs connected using two routers.
 
-![COM398 Week 9 Packet Tracer Network Topology](a_clean_infographic_network_topology_diagram_in_th.png)
+![COM398 Week 9 Packet Tracer Network Topology](COM398_ACL_Topology.png)
 
 > **Note:** The diagram is a Packet Tracer-style illustration, not a screenshot of an actual Packet Tracer project. If using GitHub, upload the image into the same folder as this README, or update the image path.
 
